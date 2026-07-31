@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JMC — நாளாந்த கடமை அறிக்கை</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap');
+:root {
+  --navy:#0d2137;--blue:#1a4a8a;--gold:#c9972a;--light:#eaf1fb;--bg:#f0f4fa;
+  --white:#fff;--bdr:#cdd8ec;--txt:#192840;--muted:#6b80a3;
+  --green:#1a7a4a;--gbg:#e6f4ed;--amber:#b05c00;--abg:#fef0e0;
+  --red:#991818;--rbg:#fdeaea;--sh:0 2px 12px rgba(13,33,55,0.10);--r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans Tamil',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px;}
+.hdr{background:linear-gradient(160deg,var(--navy) 0%,#1e3f72 100%);color:#fff;box-shadow:var(--sh);position:sticky;top:0;z-index:50;}
+.hdr-top{max-width:780px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;gap:14px;}
+.hdr-icon{width:48px;height:48px;flex-shrink:0;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.hdr-title{font-size:16px;font-weight:700;}
+.hdr-sub{font-size:12px;opacity:0.65;margin-top:3px;}
+.tabs{border-top:1px solid rgba(255,255,255,0.12);display:flex;max-width:780px;margin:0 auto;}
+.tab{flex:1;padding:11px 0;color:rgba(255,255,255,0.55);font-size:13px;font-weight:600;text-align:center;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;font-family:inherit;transition:all .2s;}
+.tab:hover{color:#fff;}.tab.on{color:var(--gold);border-bottom-color:var(--gold);}
+.main{max-width:780px;margin:0 auto;padding:22px 16px 40px;}
+.panel{display:none;}.panel.on{display:block;}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--bdr);padding:22px;margin-bottom:16px;}
+.card-hd{font-size:13px;font-weight:700;color:var(--blue);padding-bottom:12px;margin-bottom:18px;border-bottom:1.5px solid var(--light);display:flex;align-items:center;gap:8px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.row1{margin-bottom:14px;}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fg label{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.fg input,.fg select,.fg textarea{padding:10px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13.5px;font-family:inherit;color:var(--txt);background:#fff;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,74,138,0.12);}
+.fg textarea{resize:vertical;min-height:68px;line-height:1.5;}
+.locked{pointer-events:none;background:#f0f4fa !important;color:var(--muted) !important;cursor:not-allowed;}
+/* TIME ERROR */
+.time-err{font-size:11.5px;color:var(--red);margin-top:4px;display:none;padding:4px 8px;background:var(--rbg);border-radius:6px;}
+/* TASK BLOCK */
+.tblock{background:var(--light);border:1.5px solid #c2d3ed;border-radius:10px;padding:16px;margin-bottom:12px;}
+.tblock-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px;}
+.tnum{font-size:11px;font-weight:800;color:var(--blue);background:#fff;border:1px solid var(--bdr);padding:3px 12px;border-radius:20px;}
+.del-btn{background:var(--rbg);color:var(--red);border:1px solid #f0b0b0;border-radius:7px;padding:4px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.del-btn:hover{background:#f8d0d0;}
+/* TEMPLATES */
+.template-wrap{margin-bottom:10px;}
+.template-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
+.template-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{padding:5px 12px;background:#fff;border:1.5px solid var(--bdr);border-radius:20px;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;font-family:inherit;transition:all .15s;}
+.chip:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+/* LEAVE */
+.leave-btn{width:100%;padding:14px;font-size:14px;font-weight:700;background:linear-gradient(135deg,#b05c00,#7a3d00);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.leave-btn:hover{opacity:.9;}
+.leave-active{background:linear-gradient(135deg,#1a7a4a,#0d4a2a) !important;}
+.add-btn{width:100%;padding:12px;background:#fff;border:2px dashed #4a7cc0;border-radius:10px;color:var(--blue);font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px;}
+.add-btn:hover{background:var(--light);}
+.btn{display:block;width:100%;padding:14px;font-size:15px;font-weight:700;background:linear-gradient(135deg,#1d55a0,var(--navy));color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(13,33,55,0.22);}
+.btn:hover{opacity:.92;}.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-sec{display:block;width:100%;padding:12px;font-size:14px;font-weight:700;background:white;color:var(--blue);border:2px solid var(--blue);border-radius:10px;cursor:pointer;font-family:inherit;margin-top:10px;}
+.alert{padding:14px 16px;border-radius:9px;font-size:13.5px;margin-bottom:16px;line-height:1.55;}
+.ok{background:var(--gbg);color:var(--green);border:1px solid #9dd4b5;}
+.err{background:var(--rbg);color:var(--red);border:1px solid #f0a0a0;}
+.warn{background:#fffbe6;color:#7a5800;border:1px solid #f0d060;}
+.info{background:var(--light);color:var(--blue);border:1px solid var(--bdr);}
+/* STATUS */
+.status-card{border-radius:var(--r);padding:24px;text-align:center;margin-bottom:16px;}
+.status-pending{background:#fffbe6;border:2px solid #f0d060;}
+.status-approved{background:var(--gbg);border:2px solid #9dd4b5;}
+.status-rejected{background:var(--rbg);border:2px solid #f0a0a0;}
+.status-icon{font-size:40px;margin-bottom:10px;}
+.status-title{font-size:16px;font-weight:700;margin-bottom:6px;}
+.status-desc{font-size:13px;opacity:0.8;line-height:1.6;}
+/* HISTORY */
+.hist-hdr{background:linear-gradient(140deg,var(--navy) 0%,#1e4278 100%);border-radius:var(--r);padding:22px 24px;color:#fff;text-align:center;margin-bottom:16px;}
+.hist-name{font-size:18px;font-weight:700;margin-bottom:4px;}
+.hist-total{font-size:13px;opacity:.7;margin-top:6px;}
+.sum-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.sum-box{background:var(--white);border:1px solid var(--bdr);border-radius:10px;padding:16px 10px;text-align:center;}
+.sum-box .sv{font-size:30px;font-weight:800;}.sum-box .sl{font-size:12px;color:var(--muted);margin-top:4px;font-weight:600;}
+.sum-box.g{border-color:#9dd4b5;}.sum-box.g .sv{color:var(--green);}
+.sum-box.a{border-color:#f0c080;}.sum-box.a .sv{color:var(--amber);}
+.sum-box.r{border-color:#f0a0a0;}.sum-box.r .sv{color:var(--red);}
+.twrap{overflow-x:auto;border-radius:8px;border:1px solid var(--bdr);}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--navy);color:#fff;padding:10px 13px;text-align:left;font-size:11.5px;font-weight:600;}
+td{padding:10px 13px;border-bottom:1px solid #eaf0f8;vertical-align:top;}
+tr:last-child td{border-bottom:none;}tr:hover td{background:var(--light);}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;white-space:nowrap;}
+.bc{background:var(--gbg);color:var(--green);}.bi{background:var(--abg);color:var(--amber);}.bp{background:var(--rbg);color:var(--red);}.bl{background:#f0f4fa;color:#6b80a3;}
+.cat{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#e8f0fb;color:#1a4a8a;margin-left:4px;}
+@media(max-width:580px){.row2,.sum-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-icon">🏛️</div>
+    <div>
+      <div class="hdr-title">யாழ்ப்பாணம் மாநகர சபை</div>
+      <div class="hdr-sub">நாளாந்த கடமை அறிக்கை அமைப்பு</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" id="t1" onclick="go('home',this)">🏠 முகப்பு</button>
+    <button class="tab"    id="t2" onclick="go('submit',this)">📝 அறிக்கை</button>
+    <button class="tab"    id="t3" onclick="go('history',this)">📋 வரலாறு</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- HOME -->
+  <div class="panel on" id="p-home">
+    <div id="home-msg"></div>
+    <div id="section-register">
+      <div class="card">
+        <div class="card-hd">👤 உத்தியோகத்தர் பதிவு</div>
+        <div class="alert info">📋 முதல் தடவை பயன்படுத்துவோர் பதிவு செய்யவும். கிளைத்தலைவர் அனுமதித்த பின்னர் பணி சமர்ப்பிக்கலாம்.</div>
+        <div class="row2">
+          <div class="fg"><label>முழுப் பெயர் *</label><input id="reg-name" type="text" placeholder="உங்கள் பெயர்"></div>
+          <div class="fg"><label>தே.அ.அ.இல / NIC *</label><input id="reg-nic" type="text" placeholder="199512300456"></div>
+        </div>
+        <div class="row1">
+          <div class="fg">
+            <label>பதவி *</label>
+            <select id="reg-post">
+              <option value="">— பதவியை தேர்ந்தெடுக்க —</option>
+              <option>அபிவிருத்தி உத்தியோகத்தர் சேவை</option>
+              <option>முகாமைத்துவ சேவை உத்தியோகத்தர் சேவை</option>
+              <option>மேற்குறித்த உத்தியோகத்தர்களின் கடமைகளில் கடமையாற்றும் ஏனைய பதவி உத்தியோகத்தர்கள்</option>
+            </select>
+          </div>
+        </div>
+        <div class="row1">
+          <div class="fg">
+            <label>கிளை *</label>
+            <select id="reg-branch">
+              <option value="">— கிளையை தேர்ந்தெடுக்க —</option>
+              <option>ஆணையாளர் பகுதி</option><option>தாபனப்பகுதி</option>
+              <option>கொள்வனவுப் பகுதி</option><option>உள்ளகக் கணக்காய்வு</option>
+              <option>திட்டமிடல் பகுதி</option><option>செயலாளர் பகுதி</option>
+	      <option>சட்டத்தரணிப் பகுதி</option>
+              <option>நூலகம்</option><option>பதிவகம்</option>
+              <option>சுகாதார வைத்திய அதிகாரி பணிமனை</option><option>கணக்குப்பகுதி</option>
+              <option>நானாவித இறைவரிப் பகுதி</option><option>சோலைவரிப் பகுதி</option>
+              <option>களஞ்சியப்பகுதி</option><option>முன்னரங்கப் பகுதி</option>
+              <option>வருமானப் பரிசோதகர் பகுதி</option><option>வேலைப்பகுதி</option>
+              <option>நீர்வேலைப்பகுதி</option><option>வாகனப்பகுதி</option>
+              <option>பொதுச்சுகாதார பொறியியற்பிரிவு</option>
+              <option>வேலைத்தளம்</option><option>மின்சாரப்பகுதி</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" id="reg-btn" onclick="submitRegistration()">📤 பதிவு கோரிக்கை அனுப்பவும்</button>
+        <button class="btn-sec" onclick="checkMyStatus()">🔍 என் பதிவு நிலையை பார்க்க</button>
+      </div>
+    </div>
+    <div id="section-status" style="display:none"></div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="panel" id="p-submit">
+    <div id="submit-msg"></div>
+    <div class="card">
+      <div class="card-hd">👤 உத்தியோகத்தர் விபரம்</div>
+      <div class="row2">
+        <div class="fg"><label>முழுப் பெயர்</label><input id="sname" type="text" class="locked" readonly></div>
+        <div class="fg"><label>தே.அ.அ.இல / NIC</label><input id="snic" type="text" class="locked" readonly></div>
+      </div>
+      <div class="row1"><div class="fg"><label>பதவி</label><input id="spost" type="text" class="locked" readonly></div></div>
+      <div class="row1"><div class="fg"><label>கிளை</label><input id="sbranch" type="text" class="locked" readonly></div></div>
+      <div class="row1"><div class="fg"><label>அறிக்கை திகதி</label><input id="sdate" type="date" class="locked"></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">📋 இன்றைய பணிகள்</div>
+      <button class="leave-btn" id="leave-btn" onclick="toggleLeave()">🏖️ இன்று விடுமுறை / Leave</button>
+      <div id="tasks-section">
+        <div id="tasks"></div>
+        <button class="add-btn" onclick="addTask()">＋ மேலும் ஒரு பணி சேர்க்கவும்</button>
+        <button class="btn" id="sbtn" onclick="submitDuty()">✅ அறிக்கையை சமர்ப்பிக்கவும்</button>
+      </div>
+      <div id="leave-section" style="display:none">
+        <div class="alert warn">🏖️ விடுமுறை குறிக்கப்பட்டுள்ளது.</div>
+        <div class="row1">
+          <div class="fg">
+            <label>விடுமுறை வகை *</label>
+            <select id="leave-type">
+              <option value="">— தேர்வு செய்யவும் —</option>
+              //<option value="Annual Leave">வருட விடுமுறை (Annual Leave)</option>
+              <option value="Medical Leave">சுகயீன விடுமுறை (Medical Leave)</option>
+              <option value="Casual Leave">சாதாரண விடுமுறை (Casual Leave)</option>
+              <option value="Official Duty">கடமை விடுமுறை(Duty) Leave)</option>
+              <option value="Public Holiday">பொது விடுமுறை (Public Holiday)</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" id="lbtn" onclick="submitLeave()">✅ விடுமுறையை பதிவு செய்யவும்</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="panel" id="p-history">
+    <div id="hist-msg"></div>
+    <div class="card">
+      <div class="card-hd">🔍 பணி வரலாறு பார்க்க</div>
+      <div class="alert info">🔒 உங்கள் பெயர் மற்றும் NIC இரண்டும் சரியாக இருந்தால் மட்டுமே வரலாறு காட்டும்.</div>
+      <div class="row2" style="margin-bottom:14px">
+        <div class="fg"><label>பெயர் *</label><input id="lname" type="text" placeholder="உங்கள் பெயர்"></div>
+        <div class="fg"><label>தே.அ.அ.இல / NIC *</label><input id="lnic" type="text" placeholder="உங்கள் NIC"></div>
+      </div>
+      <button class="btn" onclick="lookupHistory()">🔍 வரலாறை பாருங்கள்</button>
+    </div>
+    <div id="history-out"></div>
+  </div>
+
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxQWXKpRO4zE6d_fudjfaEr3FyyS6rTM5EgZnpiMBp-7U--fBuv0FRZwYODIdIwNj4E/exec';
+
+const TEMPLATES = {
+  'அலுவலக பணி': ['கோப்பு தயாரித்தல்','கடிதம் எழுதுதல்','அறிக்கை தயாரித்தல்','தகவல் பதிவு செய்தல்','ஆவண சரிபார்த்தல்','தொலைபேசி தொடர்பு'],
+  'கள பணி':      ['கள ஆய்வு','நேரடி பரிசோதனை','வீட்டு வருகை','தள பரிசோதனை','மாதிரி சேகரிப்பு'],
+  'கூட்டம்':     ['துறை கூட்டம்','ஆணையாளர் கூட்டம்','பயனர் கூட்டம்','திட்ட மதிப்பீட்டு கூட்டம்'],
+  'ஆய்வு பணி':  ['தணிக்கை','ஆய்வு அறிக்கை','தரவு பகுப்பாய்வு','ஆவண சரிபார்த்தல்'],
+  'பயிற்சி':    ['பணியக பயிற்சி','வெளி பயிற்சி','இணைய பயிற்சி'],
+  'பொது பணி':   ['பொது நிகழ்வு','அவசர பணி','மற்ற பணிகள்']
+};
+const CATEGORIES = Object.keys(TEMPLATES);
+
+let tc       = 0;
+let staffInfo = null;
+let isLeave  = false;
+
+// ─── TABS ─────────────────────────────────────
+function go(panel, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  document.getElementById('p-' + panel).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ─── INIT ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const today = new Date().toISOString().split('T')[0];
+  const dateEl = document.getElementById('sdate');
+  dateEl.value = today;
+  dateEl.setAttribute('min', today);
+  dateEl.setAttribute('max', today);
+
+  const saved = localStorage.getItem('jmc_staff_v2');
+  if (saved) {
+    staffInfo = JSON.parse(saved);
+    prefillAll();
+    autoCheckStatus();
+  }
+  addTask();
+});
+
+function prefillAll() {
+  if (!staffInfo) return;
+  ['reg-name','sname','lname'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=staffInfo.name||'';});
+  ['reg-nic','snic','lnic'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=staffInfo.nic||'';});
+  ['reg-post','spost'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=staffInfo.post||'';});
+  ['reg-branch','sbranch'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=staffInfo.branch||'';});
+}
+
+async function autoCheckStatus() {
+  if (!staffInfo) return;
+  try {
+    const r = await fetch(`${SCRIPT_URL}?action=checkStatus&name=${encodeURIComponent(staffInfo.name)}&nic=${encodeURIComponent(staffInfo.nic)}`);
+    const d = await r.json();
+    if      (d.status==='Approved') showApprovedStatus();
+    else if (d.status==='Pending')  showPendingStatus();
+    else if (d.status==='Rejected') showRejectedStatus(d.remark);
+  } catch {}
+}
+
+// ─── REGISTRATION ──────────────────────────────
+async function submitRegistration() {
+  const msg=document.getElementById('home-msg');
+  const name=document.getElementById('reg-name').value.trim();
+  const nic=document.getElementById('reg-nic').value.trim();
+  const post=document.getElementById('reg-post').value;
+  const branch=document.getElementById('reg-branch').value;
+  if (!name||!nic||!post||!branch){msg.innerHTML=`<div class="alert err">⚠️ எல்லா தகவல்களும் கட்டாயம்.</div>`;return;}
+  const btn=document.getElementById('reg-btn');
+  btn.disabled=true;btn.textContent='⏳ அனுப்புகிறது…';
+  try {
+    const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'register',name,nic,post,branch})});
+    const result=await res.json();
+    if (result.success){
+      staffInfo={name,nic,post,branch};
+      localStorage.setItem('jmc_staff_v2',JSON.stringify(staffInfo));
+      prefillAll();
+      msg.innerHTML=`<div class="alert ok">✅ ${result.message}</div>`;
+      showPendingStatus();
+    } else {
+      msg.innerHTML=`<div class="alert err">❌ ${result.error}</div>`;
+      if(result.error.includes('ஏற்கனவே')){staffInfo={name,nic,post,branch};localStorage.setItem('jmc_staff_v2',JSON.stringify(staffInfo));prefillAll();showApprovedStatus();}
+    }
+  } catch {msg.innerHTML=`<div class="alert err">❌ இணைய இணைப்பை சரிபாருங்கள்.</div>`;}
+  finally {btn.disabled=false;btn.textContent='📤 பதிவு கோரிக்கை அனுப்பவும்';}
+}
+
+async function checkMyStatus() {
+  const name=document.getElementById('reg-name').value.trim();
+  const nic=document.getElementById('reg-nic').value.trim();
+  const msg=document.getElementById('home-msg');
+  if (!name||!nic){msg.innerHTML=`<div class="alert err">⚠️ பெயர் மற்றும் NIC உள்ளிடவும்.</div>`;return;}
+  try {
+    const r=await fetch(`${SCRIPT_URL}?action=checkStatus&name=${encodeURIComponent(name)}&nic=${encodeURIComponent(nic)}`);
+    const d=await r.json();
+    staffInfo={name,nic,post:document.getElementById('reg-post').value,branch:document.getElementById('reg-branch').value};
+    localStorage.setItem('jmc_staff_v2',JSON.stringify(staffInfo));prefillAll();
+    if(d.status==='Approved')showApprovedStatus();
+    else if(d.status==='Pending')showPendingStatus();
+    else if(d.status==='Rejected')showRejectedStatus(d.remark);
+    else msg.innerHTML=`<div class="alert warn">⚠️ பதிவு கிடைக்கவில்லை.</div>`;
+  } catch {msg.innerHTML=`<div class="alert err">❌ இணைய இணைப்பை சரிபாருங்கள்.</div>`;}
+}
+
+function showPendingStatus() {
+  document.getElementById('section-register').style.display='none';
+  document.getElementById('section-status').style.display='block';
+  document.getElementById('section-status').innerHTML=`
+    <div class="status-card status-pending">
+      <div class="status-icon">⏳</div>
+      <div class="status-title">கோரிக்கை நிலுவையில் உள்ளது</div>
+      <div class="status-desc">கிளைத்தலைவர் அனுமதிக்கும் வரை காத்திருக்கவும்.</div>
+    </div>
+    <button class="btn-sec" onclick="autoCheckStatus()" style="max-width:300px;margin:0 auto;display:block">🔄 நிலையை புதுப்பிக்க</button>`;
+}
+
+function showApprovedStatus() {
+  document.getElementById('section-register').style.display='none';
+  document.getElementById('section-status').style.display='block';
+  document.getElementById('section-status').innerHTML=`
+    <div class="status-card status-approved">
+      <div class="status-icon">✅</div>
+      <div class="status-title">அனுமதிக்கப்பட்டுள்ளீர்கள்!</div>
+      <div class="status-desc">தினமும் பணி அறிக்கை சமர்ப்பிக்கலாம்.</div>
+    </div>
+    <button class="btn" onclick="goToSubmit()" style="max-width:300px;margin:10px auto 0;display:block">📝 பணி அறிக்கை சமர்ப்பிக்க →</button>`;
+}
+
+function showRejectedStatus(remark) {
+  document.getElementById('section-register').style.display='none';
+  document.getElementById('section-status').style.display='block';
+  document.getElementById('section-status').innerHTML=`
+    <div class="status-card status-rejected">
+      <div class="status-icon">❌</div>
+      <div class="status-title">கோரிக்கை நிராகரிக்கப்பட்டது</div>
+      <div class="status-desc">கிளைத்தலைவரை தொடர்புகொள்ளவும்.${remark?'<br>கருத்து: '+remark:''}</div>
+    </div>
+    <button class="btn-sec" onclick="resetReg()" style="max-width:300px;margin:10px auto 0;display:block">🔄 மீண்டும் பதிவு செய்ய</button>`;
+}
+
+function resetReg(){localStorage.removeItem('jmc_staff_v2');staffInfo=null;document.getElementById('section-register').style.display='block';document.getElementById('section-status').style.display='none';document.getElementById('home-msg').innerHTML='';}
+function goToSubmit(){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));document.getElementById('p-submit').classList.add('on');document.getElementById('t2').classList.add('on');}
+
+// ─── LEAVE ─────────────────────────────────────
+function toggleLeave() {
+  isLeave=!isLeave;
+  const btn=document.getElementById('leave-btn');
+  if (isLeave){btn.classList.add('leave-active');btn.innerHTML='✅ விடுமுறை குறிக்கப்பட்டுள்ளது';document.getElementById('tasks-section').style.display='none';document.getElementById('leave-section').style.display='block';}
+  else{btn.classList.remove('leave-active');btn.innerHTML='🏖️ இன்று விடுமுறை / Leave';document.getElementById('tasks-section').style.display='block';document.getElementById('leave-section').style.display='none';}
+}
+
+// ─── TIME VALIDATION ───────────────────────────
+// ✅ இப்போதைய நேரத்தை விட அதிகமான நேரம் பதிவு செய்ய முடியாது
+function validateTime(input) {
+  const now  = new Date();
+  const nowH = now.getHours();
+  const nowM = now.getMinutes();
+  if (!input.value) return;
+  const parts = input.value.split(':');
+  const h = parseInt(parts[0]);
+  const m = parseInt(parts[1]);
+  const err = input.parentElement.querySelector('.time-err');
+
+  if (h > nowH || (h === nowH && m > nowM)) {
+    input.value = '';
+    if (err) {
+      err.textContent = `⚠️ இப்போதைய நேரம் ${nowH}:${String(nowM).padStart(2,'0')} — இதை விட அதிகமான நேரம் பதிவு செய்ய முடியாது.`;
+      err.style.display = 'block';
+      setTimeout(() => { err.style.display = 'none'; }, 4000);
+    }
+  }
+}
+
+// ─── TASK MANAGEMENT ──────────────────────────
+function addTask() {
+  tc++;
+  const c=document.getElementById('tasks');
+  const d=document.createElement('div');
+  d.className='tblock';d.id='tk'+tc;
+  const n=tc;
+  const chipsHTML=CATEGORIES.map(cat=>`<button class="chip" onclick="fillTemplate(${n},'${cat}',event)">${cat}</button>`).join('');
+  d.innerHTML=`
+    <div class="tblock-top">
+      <span class="tnum">பணி ${n}</span>
+      ${n>1?`<button class="del-btn" onclick="document.getElementById('tk${n}').remove()">✕ நீக்கு</button>`:''}
+    </div>
+    <div class="template-wrap">
+      <div class="template-label">📌 வகை தேர்வு / Template</div>
+      <div class="template-chips">${chipsHTML}</div>
+    </div>
+    <div class="row2" style="margin-bottom:12px">
+      <div class="fg">
+        <label>பணி வகை (Category) *</label>
+        <select class="tcat">
+          <option value="">— வகை தேர்வு —</option>
+          ${CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg">
+        <label>நிலை *</label>
+        <select class="tstatus">
+          <option value="">— தேர்வு —</option>
+          <option value="Completed">✅ முடிந்தது</option>
+          <option value="In Progress">🔄 நடைபெறுகிறது</option>
+          <option value="Pending">⏳ நிலுவையில்</option>
+        </select>
+      </div>
+    </div>
+    <div class="row1">
+      <div class="fg">
+        <label>பணி விவரம் *</label>
+        <textarea class="td" placeholder="இன்று செய்த வேலையை சுருக்கமாக விவரிக்கவும்…"></textarea>
+      </div>
+    </div>
+    <div class="row1">
+      <div class="fg">
+        <label>ஆரம்பித்த நேரம்</label>
+        <input type="time" class="ts" onchange="validateTime(this)">
+        <div class="time-err"></div>
+      </div>
+    </div>`;
+  c.appendChild(d);
+}
+
+function fillTemplate(n, category, event) {
+  const block=document.getElementById('tk'+n);if(!block)return;
+  block.querySelector('.tcat').value=category;
+  const templates=TEMPLATES[category]||[];
+  const chipsDiv=block.querySelector('.template-chips');
+  chipsDiv.innerHTML=templates.map(t=>`<button class="chip" onclick="setTask(${n},'${t}','${category}')">${t}</button>`).join('')+
+    `<button class="chip" style="background:#f0f4fa;color:var(--muted);border-color:var(--bdr)" onclick="resetChips(${n})">← திரும்பு</button>`;
+  event.stopPropagation();
+}
+
+function setTask(n,text,cat){const b=document.getElementById('tk'+n);if(!b)return;b.querySelector('.td').value=text;b.querySelector('.tcat').value=cat;resetChips(n);}
+function resetChips(n){const b=document.getElementById('tk'+n);if(!b)return;b.querySelector('.template-chips').innerHTML=CATEGORIES.map(c=>`<button class="chip" onclick="fillTemplate(${n},'${c}',event)">${c}</button>`).join('');}
+
+// ─── DUTY SUBMIT ──────────────────────────────
+async function submitDuty() {
+  const msg=document.getElementById('submit-msg');msg.innerHTML='';
+  if (!staffInfo){msg.innerHTML=`<div class="alert err">⚠️ முதலில் முகப்பு பக்கத்தில் பதிவு செய்யவும்.</div>`;return;}
+  const date=document.getElementById('sdate').value;
+  const tasks=[];
+  document.querySelectorAll('.tblock').forEach(b=>{
+    const desc=b.querySelector('.td').value.trim();
+    const cat=b.querySelector('.tcat').value;
+    const start=b.querySelector('.ts').value;
+    const status=b.querySelector('.tstatus').value;
+    if(desc&&status)tasks.push({description:desc,category:cat,startTime:start,endTime:'',status});
+  });
+  if(!tasks.length){msg.innerHTML=`<div class="alert err">⚠️ குறைந்தது ஒரு பணியாவது நிரப்பவும்.</div>`;return;}
+
+  // Client-side time validation — final check
+  const now=new Date();
+  const nowStr=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const invalidTask=tasks.find(t=>t.startTime&&t.startTime>nowStr);
+  if(invalidTask){msg.innerHTML=`<div class="alert err">⚠️ இப்போதைய நேரம் ${nowStr} — இதை விட அதிகமான நேரம் பதிவு செய்ய முடியாது.</div>`;return;}
+
+  const btn=document.getElementById('sbtn');
+  btn.disabled=true;btn.textContent='⏳ சமர்ப்பிக்கின்றது…';
+  try {
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'submitDuty',name:staffInfo.name,nic:staffInfo.nic,post:staffInfo.post,branch:staffInfo.branch,date,tasks})});
+    msg.innerHTML=`<div class="alert ok">✅ <strong>${staffInfo.name}</strong> அவர்களின் அறிக்கை சமர்ப்பிக்கப்பட்டது!<br>📋 ${tasks.length} பணிகள் — கிளைத்தலைவர் உறுதிப்படுத்திய பின்னர் வரலாற்றில் தெரியும்.</div>`;
+    document.getElementById('tasks').innerHTML='';tc=0;addTask();window.scrollTo(0,0);
+  } catch {msg.innerHTML=`<div class="alert err">❌ இணைய இணைப்பை சரிபாருங்கள்.</div>`;}
+  finally{btn.disabled=false;btn.textContent='✅ அறிக்கையை சமர்ப்பிக்கவும்';}
+}
+
+// ─── LEAVE SUBMIT ─────────────────────────────
+async function submitLeave() {
+  const msg=document.getElementById('submit-msg');msg.innerHTML='';
+  if(!staffInfo){msg.innerHTML=`<div class="alert err">⚠️ முதலில் பதிவு செய்யவும்.</div>`;return;}
+  const leaveType=document.getElementById('leave-type').value;
+  if(!leaveType){msg.innerHTML=`<div class="alert err">⚠️ விடுமுறை வகை தேர்வு செய்யவும்.</div>`;return;}
+  const date=document.getElementById('sdate').value;
+  const btn=document.getElementById('lbtn');
+  btn.disabled=true;btn.textContent='⏳ பதிவு செய்கிறது…';
+  try {
+    await fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'submitDuty',name:staffInfo.name,nic:staffInfo.nic,post:staffInfo.post,branch:staffInfo.branch,date,
+        tasks:[{description:leaveType,category:'விடுமுறை',startTime:'',endTime:'',status:'Leave'}]})});
+    msg.innerHTML=`<div class="alert ok">✅ விடுமுறை பதிவு செய்யப்பட்டது — ${leaveType}.</div>`;
+    toggleLeave();window.scrollTo(0,0);
+  } catch {msg.innerHTML=`<div class="alert err">❌ இணைய இணைப்பை சரிபாருங்கள்.</div>`;}
+  finally{btn.disabled=false;btn.textContent='✅ விடுமுறையை பதிவு செய்யவும்';}
+}
+
+// ─── HISTORY ──────────────────────────────────
+async function lookupHistory() {
+  const name=document.getElementById('lname').value.trim();
+  const nic=document.getElementById('lnic').value.trim();
+  const out=document.getElementById('history-out');
+  const msg=document.getElementById('hist-msg');
+  if(!name||!nic){msg.innerHTML=`<div class="alert err">⚠️ பெயர் மற்றும் NIC இரண்டும் கட்டாயம்.</div>`;return;}
+  msg.innerHTML='';
+  out.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted)">⏳ தரவு ஏற்றுகிறது…</div>`;
+  try {
+    const r=await fetch(`${SCRIPT_URL}?action=myHistory&name=${encodeURIComponent(name)}&nic=${encodeURIComponent(nic)}`);
+    const d=await r.json();
+    if(!d.success){out.innerHTML=`<div class="alert err">❌ ${d.error}</div>`;return;}
+    renderHistory(name,d.summary,d.history);
+  } catch {out.innerHTML=`<div class="alert err">❌ தரவு பெற முடியவில்லை.</div>`;}
+}
+
+function renderHistory(name,summary,history) {
+  const rows=history.length
+    ? history.map(h=>{
+        const isL=h.status==='Leave';
+        const bc=isL?'bl':h.status==='Completed'?'bc':h.status==='In Progress'?'bi':'bp';
+        const lbl=isL?'விடுமுறை':h.status==='Completed'?'முடிந்தது':h.status==='In Progress'?'நடைபெறுகின்றது':'நிலுவையில்';
+        const time=h.startTime?h.startTime:'—';
+        const catHtml=h.category&&!isL?`<span class="cat">${h.category}</span>`:'';
+        return `<tr>
+          <td style="white-space:nowrap">${h.date}</td>
+          <td>${h.task} ${catHtml}</td>
+          <td style="font-size:12px">${time}</td>
+          <td><span class="badge ${bc}">${lbl}</span></td>
+        </tr>`;
+      }).join('')
+    : `<tr><td colspan="4" style="text-align:center;padding:22px;color:var(--muted)">அங்கீகரிக்கப்பட்ட பணி வரலாறு இல்லை</td></tr>`;
+
+  document.getElementById('history-out').innerHTML=`
+    <div class="hist-hdr">
+      <div class="hist-name">${name}</div>
+      <div class="hist-total">மொத்தம் ${summary.total} அங்கீகரிக்கப்பட்ட பதிவுகள்</div>
+    </div>
+    <div class="sum-row">
+      <div class="sum-box g"><div class="sv">${summary.completed}</div><div class="sl">✅ முடிந்தவை</div></div>
+      <div class="sum-box a"><div class="sv">${summary.inProgress}</div><div class="sl">🔄 நடைபெறுவை</div></div>
+      <div class="sum-box r"><div class="sv">${summary.pending}</div><div class="sl">⏳ நிலுவையில்</div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">📋 அங்கீகரிக்கப்பட்ட பணி வரலாறு</div>
+      <div class="twrap">
+        <table>
+          <thead><tr><th>திகதி</th><th>பணி விவரம்</th><th>ஆரம்பம்</th><th>நிலை</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+</script>
+</body>
+</html>
