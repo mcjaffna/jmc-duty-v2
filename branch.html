@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JMC — கிளைத்தலைவர் பக்கம்</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;500;600;700&display=swap');
+:root {
+  --navy:#0d2137;--blue:#1a4a8a;--gold:#c9972a;--light:#eaf1fb;--bg:#f0f4fa;
+  --white:#fff;--bdr:#cdd8ec;--txt:#192840;--muted:#6b80a3;
+  --green:#1a7a4a;--gbg:#e6f4ed;--amber:#b05c00;--abg:#fef0e0;
+  --red:#991818;--rbg:#fdeaea;--sh:0 2px 12px rgba(13,33,55,0.10);--r:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans Tamil',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px;}
+.hdr{background:linear-gradient(160deg,var(--navy) 0%,#1e3f72 100%);color:#fff;box-shadow:var(--sh);position:sticky;top:0;z-index:50;}
+.hdr-inner{max-width:900px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-icon{width:44px;height:44px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.hdr-title{font-size:15px;font-weight:700;}
+.hdr-sub{font-size:11px;opacity:0.65;margin-top:2px;}
+.hdr-branch{background:rgba(201,151,42,0.2);border:1px solid rgba(201,151,42,0.4);color:var(--gold);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.logout-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:7px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;}
+.tabs{border-top:1px solid rgba(255,255,255,0.12);display:flex;max-width:900px;margin:0 auto;}
+.tab{flex:1;padding:11px 0;color:rgba(255,255,255,0.55);font-size:13px;font-weight:600;text-align:center;cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;font-family:inherit;transition:all .2s;}
+.tab:hover{color:#fff;}.tab.on{color:var(--gold);border-bottom-color:var(--gold);}
+.main{max-width:900px;margin:0 auto;padding:22px 16px 40px;}
+.panel{display:none;}.panel.on{display:block;}
+/* AUTH PAGES */
+.auth-wrap{max-width:440px;margin:50px auto;padding:0 16px;}
+.auth-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--bdr);padding:32px;}
+.auth-icon{text-align:center;font-size:40px;margin-bottom:10px;}
+.auth-title{text-align:center;font-size:17px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.auth-sub{text-align:center;font-size:12.5px;color:var(--muted);margin-bottom:22px;line-height:1.5;}
+.auth-switch{text-align:center;margin-top:18px;font-size:13px;color:var(--muted);}
+.auth-switch a{color:var(--blue);font-weight:600;cursor:pointer;text-decoration:none;}
+/* CARD */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--bdr);padding:20px;margin-bottom:16px;}
+.card-hd{font-size:13px;font-weight:700;color:var(--blue);padding-bottom:11px;margin-bottom:16px;border-bottom:1.5px solid var(--light);display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.refresh-lnk{font-size:12px;color:var(--blue);cursor:pointer;font-weight:600;}
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.fg label{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.fg select,.fg input{padding:10px 13px;border:1.5px solid var(--bdr);border-radius:8px;font-size:13.5px;font-family:inherit;color:var(--txt);background:#fff;outline:none;-webkit-appearance:none;}
+.fg select:focus,.fg input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,74,138,0.12);}
+.pass-wrap{position:relative;}
+.pass-wrap input{width:100%;padding-right:44px;}
+.pass-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--muted);font-size:16px;background:none;border:none;}
+/* BUTTONS */
+.btn{display:block;width:100%;padding:13px;font-size:14px;font-weight:700;background:linear-gradient(135deg,#1d55a0,var(--navy));color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(13,33,55,0.20);}
+.btn:hover{opacity:.92;}.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-sm{padding:7px 16px;font-size:12px;font-weight:700;border:none;border-radius:7px;cursor:pointer;font-family:inherit;}
+.btn-approve{background:var(--gbg);color:var(--green);border:1px solid #9dd4b5;}
+.btn-reject{background:var(--rbg);color:var(--red);border:1px solid #f0a0a0;}
+.btn-approve:hover{background:#c8ecd8;}.btn-reject:hover{background:#f8d0d0;}
+.btn-bulk{padding:9px 18px;font-size:13px;font-weight:700;border:none;border-radius:8px;cursor:pointer;font-family:inherit;}
+/* SECRET CODE */
+.secret-info{background:#fffbe6;border:1px solid #f0d060;border-radius:8px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#7a5800;line-height:1.55;}
+.secret-info strong{display:block;margin-bottom:4px;}
+/* STRENGTH */
+.strength-bar{height:4px;border-radius:2px;margin-top:6px;transition:all .3s;}
+.strength-lbl{font-size:11px;margin-top:4px;}
+/* ALERTS */
+.alert{padding:13px 16px;border-radius:9px;font-size:13px;margin-bottom:14px;line-height:1.5;}
+.ok{background:var(--gbg);color:var(--green);border:1px solid #9dd4b5;}
+.err{background:var(--rbg);color:var(--red);border:1px solid #f0a0a0;}
+.info{background:var(--light);color:var(--blue);border:1px solid var(--bdr);}
+.warn{background:#fffbe6;color:#7a5800;border:1px solid #f0d060;}
+/* TABLE */
+.twrap{overflow-x:auto;border-radius:8px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:var(--navy);color:#fff;padding:9px 12px;text-align:left;font-size:11.5px;font-weight:600;}
+td{padding:9px 12px;border-bottom:1px solid #eaf0f8;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}tr:hover td{background:var(--light);}
+/* BADGES */
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.bc{background:var(--gbg);color:var(--green);}
+.bi{background:var(--abg);color:var(--amber);}
+.bp{background:var(--rbg);color:var(--red);}
+.bl{background:#f0f4fa;color:#6b80a3;}
+.blv{background:#fef0e0;color:#b05c00;}
+.cat{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:4px;background:#e8f0fb;color:#1a4a8a;}
+.cnt{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;background:var(--gold);color:var(--navy);border-radius:10px;font-size:11px;font-weight:800;padding:0 5px;margin-left:6px;}
+.empty{text-align:center;padding:30px;color:var(--muted);font-size:13px;}
+.bulk-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.ms{background:var(--white);border:1px solid var(--bdr);border-radius:9px;padding:14px 10px;text-align:center;}
+.ms .mv{font-size:24px;font-weight:800;color:var(--navy);}
+.ms .ml{font-size:11px;color:var(--muted);margin-top:3px;}
+/* DIVIDER */
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bdr);}
+.divider span{font-size:12px;color:var(--muted);white-space:nowrap;}
+@media(max-width:580px){.tab{font-size:11px;padding:10px 4px;}.mini-stats{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN PAGE ══ -->
+<div id="login-page">
+  <div class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-left">
+        <div class="hdr-icon">🏛️</div>
+        <div><div class="hdr-title">யாழ்ப்பாணம் மாநகர சபை</div><div class="hdr-sub">கிளைத்தலைவர் நுழைவு</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div class="auth-wrap" id="login-section">
+    <div class="auth-card">
+      <div class="auth-icon">🔐</div>
+      <div class="auth-title">உள்நுழைவு</div>
+      <div class="auth-sub">கிளைத்தலைவர் கணக்கில் உள்நுழையவும்</div>
+      <div id="login-msg"></div>
+      <div class="fg">
+        <label>கிளை *</label>
+        <select id="login-branch">
+          <option value="">— கிளையை தேர்ந்தெடுக்க —</option>
+          <option>ஆணையாளர் பகுதி</option><option>தாபனப்பகுதி</option>
+          <option>பெறுகை முகாமைத்துவ பகுதி</option><option>உள்ளகக் கணக்காய்வு</option>
+          <option>திட்டமிடல் பகுதி</option><option>செயலாளர் பகுதி</option>
+	  <option>சட்டத்தரணிப் பகுதி</option>
+          <option>நூலகம்</option><option>பதிவகம்</option>
+          <option>சுகாதார வைத்திய அதிகாரி பணிமனை</option><option>கணக்குப்பகுதி</option>
+          <option>நானாவித இறைவரிப் பகுதி</option><option>சோலைவரிப் பகுதி</option>
+          <option>களஞ்சியப்பகுதி</option><option>முன்னரங்கப் பகுதி</option>
+          <option>வருமானப் பரிசோதகர் பகுதி</option><option>வேலைப்பகுதி</option>
+          <option>நீர்வேலைப்பகுதி</option><option>வாகனப்பகுதி</option>
+          <option>பொதுச்சுகாதார பொறியியற்பிரிவு</option>
+          <option>வேலைத்தளம்</option><option>மின்சாரப்பகுதி</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Username *</label>
+        <input id="login-user" type="text" placeholder="உங்கள் username">
+      </div>
+      <div class="fg">
+        <label>கடவுச்சொல் *</label>
+        <div class="pass-wrap">
+          <input id="login-pass" type="password" placeholder="கடவுச்சொல்">
+          <button class="pass-eye" onclick="togglePass('login-pass',this)">👁</button>
+        </div>
+      </div>
+      <button class="btn" id="login-btn" onclick="doLogin()">🔐 உள்நுழைக</button>
+      <div class="divider"><span>அல்லது</span></div>
+      <div class="auth-switch">கணக்கு இல்லையா? <a onclick="showRegister()">புதிய கணக்கு உருவாக்க →</a></div>
+    </div>
+  </div>
+
+  <!-- REGISTER FORM -->
+  <div class="auth-wrap" id="register-section" style="display:none">
+    <div class="auth-card">
+      <div class="auth-icon">📝</div>
+      <div class="auth-title">புதிய கணக்கு உருவாக்க</div>
+      <div class="auth-sub">IT Division-ல் இருந்து பெற்ற Secret Code உள்ளிட்டு உங்கள் கணக்கை உருவாக்கவும்</div>
+      <div id="reg-msg"></div>
+
+      <div class="secret-info">
+        <strong>🔑 Secret Code என்றால் என்ன?</strong>
+        IT Division மூலம் ஒவ்வொரு கிளைத்தலைவருக்கும் கொடுக்கப்படும் ஒரு முறை பயன்படுத்தும் code. இந்த code மூலம் மட்டுமே கணக்கு உருவாக்கலாம்.
+      </div>
+
+      <div class="fg">
+        <label>கிளை *</label>
+        <select id="reg-branch">
+          <option value="">— கிளையை தேர்ந்தெடுக்க —</option>
+          <option>ஆணையாளர் பகுதி</option><option>தாபனப்பகுதி</option>
+          <option>கொள்வனவுப் பகுதி</option><option>உள்ளகக் கணக்காய்வு</option>
+          <option>திட்டமிடல் பகுதி</option><option>செயலாளர் பகுதி</option>
+	  <option>சட்டத்தரணிப் பகுதி</option>
+          <option>நூலகம்</option><option>பதிவகம்</option>
+          <option>சுகாதார வைத்திய அதிகாரி பணிமனை</option><option>கணக்குப்பகுதி</option>
+          <option>நானாவித இறைவரிப் பகுதி</option><option>சோலைவரிப் பகுதி</option>
+          <option>களஞ்சியப்பகுதி</option><option>முன்னரங்கப் பகுதி</option>
+          <option>வருமானப் பரிசோதகர் பகுதி</option><option>வேலைப்பகுதி</option>
+          <option>நீர்வேலைப்பகுதி</option><option>வாகனப்பகுதி</option>
+          <option>பொதுச்சுகாதார பொறியியற்பிரிவு</option>
+          <option>வேலைத்தளம்</option><option>மின்சாரப்பகுதி</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>IT Secret Code *</label>
+        <input id="reg-secret" type="text" placeholder="IT Division-ல் பெற்ற code">
+      </div>
+      <div class="fg">
+        <label>Username * (குறைந்தது 4 எழுத்து)</label>
+        <input id="reg-user" type="text" placeholder="உங்கள் username தேர்வு செய்யவும்" oninput="validateUsername()">
+        <div id="user-feedback" style="font-size:11.5px;margin-top:4px"></div>
+      </div>
+      <div class="fg">
+        <label>கடவுச்சொல் * (குறைந்தது 6 எழுத்து)</label>
+        <div class="pass-wrap">
+          <input id="reg-pass" type="password" placeholder="வலிமையான கடவுச்சொல்" oninput="checkStrength()">
+          <button class="pass-eye" onclick="togglePass('reg-pass',this)">👁</button>
+        </div>
+        <div class="strength-bar" id="strength-bar" style="width:0%;background:var(--red)"></div>
+        <div class="strength-lbl" id="strength-lbl" style="color:var(--muted)"></div>
+      </div>
+      <div class="fg">
+        <label>கடவுச்சொல் உறுதிப்படுத்தல் *</label>
+        <div class="pass-wrap">
+          <input id="reg-pass2" type="password" placeholder="மீண்டும் கடவுச்சொல் உள்ளிடவும்" oninput="checkMatch()">
+          <button class="pass-eye" onclick="togglePass('reg-pass2',this)">👁</button>
+        </div>
+        <div id="match-lbl" style="font-size:11.5px;margin-top:4px"></div>
+      </div>
+      <button class="btn" id="reg-btn" onclick="doRegister()">✅ கணக்கு உருவாக்கவும்</button>
+      <div class="divider"><span>அல்லது</span></div>
+      <div class="auth-switch">கணக்கு உள்ளதா? <a onclick="showLogin()">← உள்நுழைவுக்கு திரும்பு</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN PAGE ══ -->
+<div id="main-page" style="display:none">
+  <div class="hdr">
+    <div class="hdr-inner">
+      <div class="hdr-left">
+        <div class="hdr-icon">🏛️</div>
+        <div><div class="hdr-title">கிளைத்தலைவர் கட்டுப்பாட்டு மையம்</div><div class="hdr-sub">யாழ்ப்பாணம் மாநகர சபை</div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="hdr-branch" id="hdr-branch-name"></div>
+        <button class="logout-btn" onclick="doLogout()">வெளியேறு</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('staff',this)">👥 பதிவு கோரிக்கைகள் <span class="cnt" id="staff-cnt">0</span></button>
+      <button class="tab"    onclick="switchTab('duty',this)">📋 பணி உறுதிப்படுத்தல் <span class="cnt" id="duty-cnt">0</span></button>
+      <button class="tab"    onclick="switchTab('summary',this)">📊 இன்றைய நிலை</button>
+      <button class="tab"    onclick="switchTab('settings',this)">⚙️ கணக்கு</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- STAFF APPROVALS -->
+    <div class="panel on" id="p-staff">
+      <div id="staff-msg"></div>
+      <div class="card">
+        <div class="card-hd">👥 நிலுவையில் உள்ள பதிவு கோரிக்கைகள்
+          <span class="refresh-lnk" onclick="loadPendingStaff()">⟳ புதுப்பி</span>
+        </div>
+        <div id="staff-list"><div class="empty">⏳ தரவு ஏற்றுகிறது…</div></div>
+      </div>
+    </div>
+
+    <!-- DUTY APPROVALS -->
+    <div class="panel" id="p-duty">
+      <div id="duty-msg"></div>
+      <div class="card">
+        <div class="card-hd">📋 நிலுவையில் உள்ள பணி அறிக்கைகள்
+          <span class="refresh-lnk" onclick="loadPendingDuty()">⟳ புதுப்பி</span>
+        </div>
+        <div class="bulk-bar">
+          <button class="btn-bulk btn-approve" onclick="approveSelected()">✅ தேர்ந்தெடுத்தவற்றை அங்கீகரி</button>
+          <button class="btn-bulk btn-reject"  onclick="rejectSelected()">❌ தேர்ந்தெடுத்தவற்றை நிராகரி</button>
+          <button class="btn-sm" style="background:var(--light);color:var(--blue);border:1px solid var(--bdr)" onclick="selectAll()">எல்லாம் தேர்வு</button>
+        </div>
+        <div id="duty-list"><div class="empty">⏳ தரவு ஏற்றுகிறது…</div></div>
+      </div>
+    </div>
+
+    <!-- TODAY SUMMARY -->
+    <div class="panel" id="p-summary">
+      <div class="card">
+        <div class="card-hd">📊 இன்றைய கிளை நிலை
+          <span class="refresh-lnk" onclick="loadSummary()">⟳ புதுப்பி</span>
+        </div>
+        <div class="mini-stats">
+          <div class="ms"><div class="mv" id="s-submitted" style="color:var(--green)">—</div><div class="ml">இன்று submit</div></div>
+          <div class="ms"><div class="mv" id="s-completed" style="color:var(--green)">—</div><div class="ml">முடிந்தவை</div></div>
+          <div class="ms"><div class="mv" id="s-leave" style="color:var(--amber)">—</div><div class="ml">விடுமுறை</div></div>
+          <div class="ms"><div class="mv" id="s-pending" style="color:var(--red)">—</div><div class="ml">நிலுவையில்</div></div>
+        </div>
+        <div id="summary-list"><div class="empty">⏳ தரவு ஏற்றுகிறது…</div></div>
+      </div>
+    </div>
+
+    <!-- ACCOUNT SETTINGS -->
+    <div class="panel" id="p-settings">
+      <div class="card">
+        <div class="card-hd">⚙️ கணக்கு அமைப்புகள்</div>
+        <div id="settings-msg"></div>
+        <div style="margin-bottom:20px;padding:16px;background:var(--light);border-radius:9px;">
+          <div style="font-size:13px;font-weight:600;color:var(--navy);margin-bottom:4px">தற்போதைய கணக்கு</div>
+          <div style="font-size:13px;color:var(--muted)">கிளை: <strong id="set-branch" style="color:var(--txt)"></strong></div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">Username: <strong id="set-user" style="color:var(--txt)"></strong></div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px">🔑 கடவுச்சொல் மாற்றம்</div>
+        <div class="fg">
+          <label>தற்போதைய கடவுச்சொல் *</label>
+          <div class="pass-wrap">
+            <input id="cur-pass" type="password" placeholder="தற்போதைய கடவுச்சொல்">
+            <button class="pass-eye" onclick="togglePass('cur-pass',this)">👁</button>
+          </div>
+        </div>
+        <div class="fg">
+          <label>புதிய கடவுச்சொல் *</label>
+          <div class="pass-wrap">
+            <input id="new-pass" type="password" placeholder="புதிய கடவுச்சொல்" oninput="checkNewStrength()">
+            <button class="pass-eye" onclick="togglePass('new-pass',this)">👁</button>
+          </div>
+          <div class="strength-bar" id="new-strength-bar" style="width:0%;background:var(--red)"></div>
+          <div class="strength-lbl" id="new-strength-lbl" style="color:var(--muted)"></div>
+        </div>
+        <div class="fg">
+          <label>புதிய கடவுச்சொல் உறுதிப்படுத்தல் *</label>
+          <div class="pass-wrap">
+            <input id="new-pass2" type="password" placeholder="மீண்டும் உள்ளிடவும்">
+            <button class="pass-eye" onclick="togglePass('new-pass2',this)">👁</button>
+          </div>
+        </div>
+        <button class="btn" onclick="changePassword()">🔑 கடவுச்சொல் மாற்றவும்</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcH79i_aeGy47E2xa94R1GlpGEwiTelws6xs3bSdFMjG7bb-gWymBhnweuYJJ8K7Bw/exec';
+
+let currentBranch   = '';
+let currentUsername = '';
+
+// ─── AUTH TOGGLE ───────────────────────────────
+function showRegister() {
+  document.getElementById('login-section').style.display    = 'none';
+  document.getElementById('register-section').style.display = 'block';
+}
+function showLogin() {
+  document.getElementById('register-section').style.display = 'none';
+  document.getElementById('login-section').style.display    = 'block';
+}
+
+// ─── PASSWORD HELPERS ──────────────────────────
+function togglePass(id, btn) {
+  const el = document.getElementById(id);
+  el.type  = el.type === 'password' ? 'text' : 'password';
+  btn.textContent = el.type === 'password' ? '👁' : '🙈';
+}
+
+function getStrength(pass) {
+  let score = 0;
+  if (pass.length >= 6)  score++;
+  if (pass.length >= 10) score++;
+  if (/[A-Z]/.test(pass)) score++;
+  if (/[0-9]/.test(pass)) score++;
+  if (/[^A-Za-z0-9]/.test(pass)) score++;
+  return score;
+}
+
+function checkStrength() {
+  const pass  = document.getElementById('reg-pass').value;
+  const bar   = document.getElementById('strength-bar');
+  const lbl   = document.getElementById('strength-lbl');
+  const score = getStrength(pass);
+  const pct   = [0,20,40,60,80,100][score];
+  const color = score <= 1 ? '#991818' : score <= 2 ? '#b05c00' : score <= 3 ? '#c9972a' : '#1a7a4a';
+  const text  = score <= 1 ? 'மிகவும் பலவீனம்' : score <= 2 ? 'பலவீனம்' : score <= 3 ? 'சரியானது' : score <= 4 ? 'வலிமையானது' : 'மிகவும் வலிமையானது';
+  bar.style.cssText = `width:${pct}%;background:${color};height:4px;border-radius:2px;margin-top:6px;transition:all .3s;`;
+  lbl.style.color   = color;
+  lbl.textContent   = pass ? text : '';
+}
+
+function checkNewStrength() {
+  const pass  = document.getElementById('new-pass').value;
+  const bar   = document.getElementById('new-strength-bar');
+  const lbl   = document.getElementById('new-strength-lbl');
+  const score = getStrength(pass);
+  const pct   = [0,20,40,60,80,100][score];
+  const color = score <= 1 ? '#991818' : score <= 2 ? '#b05c00' : score <= 3 ? '#c9972a' : '#1a7a4a';
+  const text  = score <= 1 ? 'மிகவும் பலவீனம்' : score <= 2 ? 'பலவீனம்' : score <= 3 ? 'சரியானது' : score <= 4 ? 'வலிமையானது' : 'மிகவும் வலிமையானது';
+  bar.style.cssText = `width:${pct}%;background:${color};height:4px;border-radius:2px;margin-top:6px;transition:all .3s;`;
+  lbl.style.color   = color;
+  lbl.textContent   = pass ? text : '';
+}
+
+function checkMatch() {
+  const p1  = document.getElementById('reg-pass').value;
+  const p2  = document.getElementById('reg-pass2').value;
+  const lbl = document.getElementById('match-lbl');
+  if (!p2) { lbl.textContent = ''; return; }
+  lbl.textContent = p1 === p2 ? '✅ கடவுச்சொல் பொருந்துகிறது' : '❌ பொருந்தவில்லை';
+  lbl.style.color = p1 === p2 ? 'var(--green)' : 'var(--red)';
+}
+
+function validateUsername() {
+  const val = document.getElementById('reg-user').value.trim();
+  const fb  = document.getElementById('user-feedback');
+  if (!val) { fb.textContent = ''; return; }
+  if (val.length < 4) { fb.textContent = '⚠️ குறைந்தது 4 எழுத்து தேவை'; fb.style.color = 'var(--red)'; return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(val)) { fb.textContent = '⚠️ எழுத்து, எண் மற்றும் _ மட்டும்'; fb.style.color = 'var(--red)'; return; }
+  fb.textContent = '✅ சரியான username'; fb.style.color = 'var(--green)';
+}
+
+// ─── REGISTER ──────────────────────────────────
+async function doRegister() {
+  const msg      = document.getElementById('reg-msg');
+  const branch   = document.getElementById('reg-branch').value;
+  const secret   = document.getElementById('reg-secret').value.trim();
+  const username = document.getElementById('reg-user').value.trim();
+  const pass     = document.getElementById('reg-pass').value;
+  const pass2    = document.getElementById('reg-pass2').value;
+
+  if (!branch||!secret||!username||!pass||!pass2) {
+    msg.innerHTML = `<div class="alert err">⚠️ எல்லா தகவல்களும் கட்டாயம்.</div>`; return;
+  }
+  if (username.length < 4) {
+    msg.innerHTML = `<div class="alert err">⚠️ Username குறைந்தது 4 எழுத்து தேவை.</div>`; return;
+  }
+  if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+    msg.innerHTML = `<div class="alert err">⚠️ Username-ல் எழுத்து, எண் மற்றும் _ மட்டும் பயன்படுத்தவும்.</div>`; return;
+  }
+  if (pass.length < 6) {
+    msg.innerHTML = `<div class="alert err">⚠️ கடவுச்சொல் குறைந்தது 6 எழுத்து தேவை.</div>`; return;
+  }
+  if (pass !== pass2) {
+    msg.innerHTML = `<div class="alert err">⚠️ கடவுச்சொற்கள் பொருந்தவில்லை.</div>`; return;
+  }
+
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true; btn.textContent = '⏳ உருவாக்குகிறது…';
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action:'bhRegister', branch, secret, username, password: pass })
+    });
+    msg.innerHTML = `<div class="alert ok">✅ கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது! இப்போது உள்நுழையலாம்.</div>`;
+    setTimeout(() => {
+      document.getElementById('login-branch').value = branch;
+      document.getElementById('login-user').value   = username;
+      showLogin();
+    }, 1500);
+  } catch(e) {
+    msg.innerHTML = `<div class="alert err">❌ பிழை: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '✅ கணக்கு உருவாக்கவும்';
+  }
+}
+
+// ─── LOGIN ─────────────────────────────────────
+async function doLogin() {
+  const branch   = document.getElementById('login-branch').value;
+  const username = document.getElementById('login-user').value.trim();
+  const pass     = document.getElementById('login-pass').value;
+  const msg      = document.getElementById('login-msg');
+
+  if (!branch||!username||!pass) {
+    msg.innerHTML = `<div class="alert err">⚠️ கிளை, username மற்றும் கடவுச்சொல் கட்டாயம்.</div>`; return;
+  }
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = '⏳ சரிபார்க்கிறது…';
+
+  try {
+    // GET request மூலம் login — CORS பிரச்சினை இல்லை
+    const params = new URLSearchParams({
+      action: 'bhLogin',
+      branch: branch,
+      username: username,
+      password: pass
+    });
+    const res    = await fetch(`${SCRIPT_URL}?${params.toString()}`);
+    const result = await res.json();
+    if (result.success) {
+      currentBranch   = branch;
+      currentUsername = username;
+      document.getElementById('login-page').style.display = 'none';
+      document.getElementById('main-page').style.display  = 'block';
+      document.getElementById('hdr-branch-name').textContent = branch;
+      document.getElementById('set-branch').textContent   = branch;
+      document.getElementById('set-user').textContent     = username;
+      loadAll();
+    } else {
+      msg.innerHTML = `<div class="alert err">❌ ${result.error}</div>`;
+    }
+  } catch(e) {
+    msg.innerHTML = `<div class="alert err">❌ பிழை: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = '🔐 உள்நுழைக';
+  }
+}
+
+// ─── LOGOUT ────────────────────────────────────
+function doLogout() {
+  currentBranch = ''; currentUsername = '';
+  document.getElementById('login-page').style.display = 'block';
+  document.getElementById('main-page').style.display  = 'none';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-msg').innerHTML = '';
+}
+
+// ─── CHANGE PASSWORD ───────────────────────────
+async function changePassword() {
+  const msg   = document.getElementById('settings-msg');
+  const cur   = document.getElementById('cur-pass').value;
+  const newP  = document.getElementById('new-pass').value;
+  const newP2 = document.getElementById('new-pass2').value;
+
+  if (!cur||!newP||!newP2) { msg.innerHTML=`<div class="alert err">⚠️ எல்லா தகவல்களும் கட்டாயம்.</div>`; return; }
+  if (newP.length < 6)      { msg.innerHTML=`<div class="alert err">⚠️ புதிய கடவுச்சொல் குறைந்தது 6 எழுத்து தேவை.</div>`; return; }
+  if (newP !== newP2)        { msg.innerHTML=`<div class="alert err">⚠️ கடவுச்சொற்கள் பொருந்தவில்லை.</div>`; return; }
+
+  try {
+    const res    = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action:'bhChangePassword', branch:currentBranch, username:currentUsername, currentPassword:cur, newPassword:newP }) });
+    const result = await res.json();
+    if (result.success) {
+      msg.innerHTML = `<div class="alert ok">✅ கடவுச்சொல் வெற்றிகரமாக மாற்றப்பட்டது!</div>`;
+      document.getElementById('cur-pass').value  = '';
+      document.getElementById('new-pass').value  = '';
+      document.getElementById('new-pass2').value = '';
+    } else {
+      msg.innerHTML = `<div class="alert err">❌ ${result.error}</div>`;
+    }
+  } catch {
+    msg.innerHTML = `<div class="alert err">❌ இணைய இணைப்பை சரிபாருங்கள்.</div>`;
+  }
+}
+
+// ─── TABS ──────────────────────────────────────
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('p-'+name).classList.add('on');
+  btn.classList.add('on');
+  if (name==='staff')    loadPendingStaff();
+  if (name==='duty')     loadPendingDuty();
+  if (name==='summary')  loadSummary();
+}
+
+function loadAll() { loadPendingStaff(); loadPendingDuty(); }
+
+// ─── PENDING STAFF ──────────────────────────────
+async function loadPendingStaff() {
+  const el=document.getElementById('staff-list');
+  el.innerHTML='<div class="empty">⏳ தரவு ஏற்றுகிறது…</div>';
+  try {
+    const r=await fetch(`${SCRIPT_URL}?action=pendingStaff&branch=${encodeURIComponent(currentBranch)}`);
+    const d=await r.json();
+    const list=d.staff||[];
+    document.getElementById('staff-cnt').textContent=list.length;
+    if (!list.length) { el.innerHTML='<div class="empty">✅ நிலுவையில் உள்ள கோரிக்கைகள் இல்லை</div>'; return; }
+    el.innerHTML=`<div class="twrap"><table>
+      <thead><tr><th>பெயர்</th><th>NIC</th><th>பதவி</th><th>கோரிய திகதி</th><th>நடவடிக்கை</th></tr></thead>
+      <tbody>${list.map(s=>`<tr>
+        <td><strong>${s.name}</strong></td>
+        <td style="font-size:12px">${s.nic}</td>
+        <td style="font-size:12px">${s.post}</td>
+        <td style="font-size:12px">${new Date(s.date).toLocaleDateString('ta-IN')}</td>
+        <td><div style="display:flex;gap:6px">
+          <button class="btn-sm btn-approve" onclick="approveStaff('${s.name}','${s.nic}','Approved')">✅ அனுமதி</button>
+          <button class="btn-sm btn-reject"  onclick="approveStaff('${s.name}','${s.nic}','Rejected')">❌ நிராகரி</button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } catch { el.innerHTML='<div class="empty">❌ தரவு பெற முடியவில்லை</div>'; }
+}
+
+async function approveStaff(name, nic, status) {
+  const msg=document.getElementById('staff-msg');
+  try {
+    const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'approveStaff',name,nic,status})});
+    const result=await res.json();
+    if (result.success) {
+      const lbl=status==='Approved'?'அனுமதிக்கப்பட்டது':'நிராகரிக்கப்பட்டது';
+      msg.innerHTML=`<div class="alert ok">✅ ${name} — ${lbl}.</div>`;
+      loadPendingStaff();
+    } else { msg.innerHTML=`<div class="alert err">❌ ${result.error}</div>`; }
+  } catch { msg.innerHTML=`<div class="alert err">❌ பிழை ஏற்பட்டது.</div>`; }
+}
+
+// ─── PENDING DUTIES ─────────────────────────────
+async function loadPendingDuty() {
+  const el=document.getElementById('duty-list');
+  el.innerHTML='<div class="empty">⏳ தரவு ஏற்றுகிறது…</div>';
+  try {
+    const r=await fetch(`${SCRIPT_URL}?action=pendingDuty&branch=${encodeURIComponent(currentBranch)}`);
+    const d=await r.json();
+    const duties=d.duties||[];
+    document.getElementById('duty-cnt').textContent=duties.length;
+    if (!duties.length) { el.innerHTML='<div class="empty">✅ நிலுவையில் உள்ள பணிகள் இல்லை</div>'; return; }
+    el.innerHTML=`<div class="twrap"><table>
+      <thead><tr>
+        <th><input type="checkbox" id="chk-all" onchange="toggleAll(this)"></th>
+        <th>பெயர்</th><th>திகதி</th><th>பணி விவரம்</th><th>வகை</th><th>நேரம்</th><th>நிலை</th>
+      </tr></thead>
+      <tbody>${duties.map(d=>{
+        const isLeave=d.status==='Leave';
+        const bc=isLeave?'blv':d.status==='Completed'?'bc':d.status==='In Progress'?'bi':'bp';
+        const lbl=isLeave?'விடுமுறை':d.status==='Completed'?'முடிந்தது':d.status==='In Progress'?'நடைபெறுகிறது':'நிலுவையில்';
+        const time=d.startTime?`${d.startTime}${d.endTime?' → '+d.endTime:''}`:'—';
+        return `<tr>
+          <td><input type="checkbox" class="duty-chk" data-idx="${d.rowIndex}"></td>
+          <td><strong>${d.name}</strong></td>
+          <td style="font-size:12px;white-space:nowrap">${d.date}</td>
+          <td>${d.task}</td>
+          <td><span class="cat">${d.category||'பொது'}</span></td>
+          <td style="font-size:12px;white-space:nowrap">${time}</td>
+          <td><span class="badge ${bc}">${lbl}</span></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  } catch { el.innerHTML='<div class="empty">❌ தரவு பெற முடியவில்லை</div>'; }
+}
+
+function toggleAll(chk) { document.querySelectorAll('.duty-chk').forEach(c=>c.checked=chk.checked); }
+function selectAll() { document.querySelectorAll('.duty-chk').forEach(c=>c.checked=true); const a=document.getElementById('chk-all');if(a)a.checked=true; }
+function getSelectedIndexes() { return [...document.querySelectorAll('.duty-chk:checked')].map(c=>parseInt(c.dataset.idx)); }
+async function approveSelected() { await bulkAction('Approved'); }
+async function rejectSelected()  { await bulkAction('Rejected'); }
+
+async function bulkAction(status) {
+  const indexes=getSelectedIndexes();
+  const msg=document.getElementById('duty-msg');
+  if (!indexes.length) { msg.innerHTML=`<div class="alert warn">⚠️ குறைந்தது ஒரு பணியை தேர்வு செய்யவும்.</div>`; return; }
+  try {
+    const res=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'approveDuty',rowIndexes:indexes,status})});
+    const result=await res.json();
+    if (result.success) {
+      const lbl=status==='Approved'?'அங்கீகரிக்கப்பட்டது':'நிராகரிக்கப்பட்டது';
+      msg.innerHTML=`<div class="alert ok">✅ ${result.updated} பணிகள் ${lbl}.</div>`;
+      loadPendingDuty();
+    } else { msg.innerHTML=`<div class="alert err">❌ ${result.error}</div>`; }
+  } catch { msg.innerHTML=`<div class="alert err">❌ பிழை ஏற்பட்டது.</div>`; }
+}
+
+// ─── TODAY SUMMARY ───────────────────────────────
+async function loadSummary() {
+  try {
+    const r=await fetch(`${SCRIPT_URL}?action=adminData`);
+    const d=await r.json();
+    const today=new Date().toISOString().split('T')[0];
+    const todayRows=(d.rows||[]).filter(r=>r.branch===currentBranch&&String(r.date)===today);
+    const byName={};
+    todayRows.forEach(r=>{
+      if(!byName[r.name])byName[r.name]={tasks:[],hasLeave:false};
+      if(r.status==='Leave')byName[r.name].hasLeave=true;
+      else byName[r.name].tasks.push(r);
+    });
+    const names=Object.keys(byName);
+    const completed=todayRows.filter(r=>r.status==='Completed').length;
+    const leave=todayRows.filter(r=>r.status==='Leave').length;
+    const pending=todayRows.filter(r=>r.status==='Pending').length;
+    document.getElementById('s-submitted').textContent=names.length;
+    document.getElementById('s-completed').textContent=completed;
+    document.getElementById('s-leave').textContent=leave;
+    document.getElementById('s-pending').textContent=pending;
+    const el=document.getElementById('summary-list');
+    if(!names.length){el.innerHTML='<div class="empty">இன்று இதுவரை submissions இல்லை</div>';return;}
+    el.innerHTML=`<div class="twrap"><table>
+      <thead><tr><th>பெயர்</th><th>பணிகள்</th><th>நிலை</th></tr></thead>
+      <tbody>${Object.entries(byName).map(([name,info])=>`<tr>
+        <td><strong>${name}</strong></td>
+        <td>${info.hasLeave?'<span class="badge blv">விடுமுறை</span>':info.tasks.length+' பணிகள்'}</td>
+        <td>
+          ${info.tasks.filter(t=>t.status==='Completed').length>0?`<span class="badge bc">${info.tasks.filter(t=>t.status==='Completed').length} முடிந்தவை</span> `:''}
+          ${info.tasks.filter(t=>t.status==='In Progress').length>0?`<span class="badge bi">${info.tasks.filter(t=>t.status==='In Progress').length} நடைபெறுவை</span> `:''}
+          ${info.tasks.filter(t=>t.status==='Pending').length>0?`<span class="badge bp">${info.tasks.filter(t=>t.status==='Pending').length} நிலுவையில்</span>`:''}
+        </td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  } catch { document.getElementById('summary-list').innerHTML='<div class="empty">❌ தரவு பெற முடியவில்லை</div>'; }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+});
+</script>
+</body>
+</html>
